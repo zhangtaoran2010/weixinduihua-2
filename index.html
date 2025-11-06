@@ -1129,21 +1129,30 @@
         el.dataset.hiddenByMystiCap = 'true';
       };
 
+      const scrubs = [
+        { selector: '.button_itemWater__dJicb' },
+        { selector: '[class*=\"button_itemWater__\"]' },
+        { selector: '.ant-tooltip', filter: (el) => el.textContent?.includes('去除水印') },
+        { selector: '.phone-water' },
+        { selector: '[class*=\"phone_water__\"]' }
+      ];
+
       const removeWatermarkButtons = (root) => {
         if (!root) return;
         const scope = typeof root.querySelectorAll === 'function' ? root : document;
         if (!scope) return;
-        scope.querySelectorAll?.('.button_itemWater__dJicb').forEach(hideElement);
-        scope.querySelectorAll?.('.ant-tooltip').forEach((el) => {
-          if (el.textContent && el.textContent.includes('去除水印')) {
+        scrubs.forEach(({ selector, filter }) => {
+          scope.querySelectorAll?.(selector).forEach((el) => {
+            if (filter && !filter(el)) return;
             hideElement(el);
-          }
+          });
         });
-        if (root instanceof HTMLElement) {
-          if (root.classList.contains('button_itemWater__dJicb')) hideElement(root);
-          if (root.classList.contains('ant-tooltip') && root.textContent.includes('去除水印')) {
-            hideElement(root);
-          }
+        if (root instanceof HTMLElement || root instanceof SVGElement) {
+          scrubs.forEach(({ selector, filter }) => {
+            if (root.matches?.(selector) && (!filter || filter(root))) {
+              hideElement(root);
+            }
+          });
         }
       };
 
